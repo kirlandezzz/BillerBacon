@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane maxHeight="712.0" maxWidth="365.0" minHeight="712.0" minWidth="365.0" prefHeight="712.0" prefWidth="365.0" style="-fx-background-color: #ffe8c0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane layoutY="-1.0" prefHeight="712.0" prefWidth="365.0">
+         <left>
+            <AnchorPane prefHeight="704.0" prefWidth="185.0" BorderPane.alignment="CENTER">
+               <children>
+                  <JFXButton layoutX="27.0" layoutY="14.0" prefHeight="25.0" prefWidth="7.0" text=" " />
+                  <FontAwesomeIconView glyphName="BARS" layoutX="26.0" layoutY="63.0" size="25" />
+               </children>
+            </AnchorPane>
+         </left>
+      </BorderPane>
+   </children>
+</Pane>
