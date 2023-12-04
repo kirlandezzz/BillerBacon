@@ -17,8 +17,11 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"));
+        scene = new Scene(loadFXML("primary"));//CAMBIAR DE VENTANA A 001
         stage.setScene(scene);
+        
+        //stage.setResizable(false); REVISAR!!!
+        
         stage.show();
     }
 
