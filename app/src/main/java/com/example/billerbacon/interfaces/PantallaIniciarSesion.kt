@@ -1,4 +1,4 @@
-package com.example.baboo.interfaces
+package com.example.billerbacon.interfaces
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.baboo.R
+import com.example.billerbacon.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +54,7 @@ fun PantallaIniciarSesion() {
         //TextField correo
         OutlinedTextField(value = correo,
             onValueChange = { correo = it },
-            placeholder = { Text(text = "Correo Electrónico", fontSize = 13.sp) }
+            placeholder = { Text(text = "Correo Electrónico", fontSize = 13.sp, color = Color.Black) }
         )
         Spacer(modifier = Modifier.size(25.dp))
         //TextField clave
