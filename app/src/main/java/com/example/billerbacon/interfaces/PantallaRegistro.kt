@@ -1,8 +1,11 @@
 package com.example.billerbacon.interfaces
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -10,11 +13,15 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.baboo.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,12 +31,19 @@ fun PantallaRegistro() {
     var clave by rememberSaveable { mutableStateOf("") }
     var confirmacionClave by rememberSaveable { mutableStateOf("") }
     var errorClave by rememberSaveable { mutableStateOf(false) }
+    val myFontFamily = FontFamily(Font(R.font.inter))
+    val myTextStyle = TextStyle(
+        fontFamily = myFontFamily
+    )
 
     Column(
+        modifier = Modifier
+            .background(Color(0xFFffe8c0)),
+
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Registrarse", fontSize = 25.sp)
+        Text(text = "Registrarse",style = myTextStyle, fontSize = 25.sp)
         Spacer(modifier = Modifier.size(25.dp))
 
         // Campos de entrada
@@ -79,10 +93,11 @@ fun PantallaRegistro() {
                     // TODO: Manejar registro
                 }
             },
-            shape = RectangleShape,
-            modifier = Modifier.size(250.dp, 50.dp)
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.size(250.dp, 50.dp),
+            colors = ButtonDefaults.buttonColors(Color.White),
         ) {
-            Text(text = "Registrarse")
+            Text(text = "Registrarse",style = myTextStyle, color = Color.Black)
         }
     }
 }
