@@ -1,5 +1,6 @@
 package com.example.baboo.navegacion
 
 sealed class Navegacion(val ruta: String) {
-    object pantallaBienvenida: Navegacion("PantallaBienvenida")
+    object PantallaBienvenida: Navegacion("PantallaBienvenida")
+    object PantallaIniciarSesion: Navegacion("PantallaIniciarSesion")
 }
