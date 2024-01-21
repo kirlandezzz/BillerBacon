@@ -1,4 +1,4 @@
-package com.example.baboo.ui.theme
+package com.example.billerbacon.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

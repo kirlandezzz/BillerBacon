@@ -1,12 +1,12 @@
-package com.example.baboo.navegacion
+package com.example.billerbacon.navegacion
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.baboo.interfaces.PantallaBienvenida
-import com.example.baboo.interfaces.PantallaIniciarSesion
-import com.example.baboo.interfaces.PantallaRegistro
+import com.example.billerbacon.interfaces.PantallaBienvenida
+import com.example.billerbacon.interfaces.PantallaIniciarSesion
+import com.example.billerbacon.interfaces.PantallaRegistro
 
 @Composable
 fun NavegacionHost() {

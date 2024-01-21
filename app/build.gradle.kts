@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.baboo"
+    namespace = "com.example.billerbacon"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.baboo"
+        applicationId = "com.example.billerbacon"
         minSdk = 25
         targetSdk = 33
         versionCode = 1
