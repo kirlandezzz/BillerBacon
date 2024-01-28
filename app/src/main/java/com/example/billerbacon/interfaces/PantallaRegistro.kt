@@ -8,6 +8,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,11 +24,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.billerbacon.R
+import com.example.billerbacon.navegacion.Navegacion
+import com.example.billerbacon.viewmodels.ViewModelLogin
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaRegistro() {
+fun PantallaRegistro(navController: NavController) {
     var nombre by rememberSaveable { mutableStateOf("") }
     var correo by rememberSaveable { mutableStateOf("") }
     var clave by rememberSaveable { mutableStateOf("") }
@@ -35,6 +46,10 @@ fun PantallaRegistro() {
     val myTextStyle = TextStyle(
         fontFamily = myFontFamily
     )
+    val snackbarHostState = remember { SnackbarHostState() }
+    // Instancia de Firestore
+    val auth = FirebaseAuth.getInstance()
+    val viewmodellogin:ViewModelLogin = viewModel()
 
     Column(
         modifier = Modifier
@@ -90,7 +105,39 @@ fun PantallaRegistro() {
             onClick = {
                 errorClave = clave != confirmacionClave
                 if (!errorClave) {
-                    // TODO: Manejar registro
+                    // Comprueba si el correo electrónico y la clave están vacíos
+                    if (correo.isNotBlank() && clave.isNotBlank()) {
+                        viewmodellogin.registrarUsuario(
+                            correo,
+                            clave,
+                            home = {
+                                // Acciones a realizar cuando el registro es exitoso
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Registro exitoso",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    navController.navigate(Navegacion.PantallaRegistro.ruta)
+                                }
+                            }
+                        )
+                    } else {
+                        // Maneja el caso en el que el correo electrónico o la clave están vacíos
+                        CoroutineScope(Dispatchers.Main).launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Correo electrónico y clave no pueden estar vacíos",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                } else {
+                    // Maneja el caso en el que las claves no coinciden
+                    CoroutineScope(Dispatchers.Main).launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Las claves no coinciden",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             },
             shape = RoundedCornerShape(10.dp),
@@ -100,4 +147,6 @@ fun PantallaRegistro() {
             Text(text = "Registrarse",style = myTextStyle, color = Color.Black)
         }
     }
+    // Snackbar Host
+    SnackbarHost(hostState = snackbarHostState)
 }

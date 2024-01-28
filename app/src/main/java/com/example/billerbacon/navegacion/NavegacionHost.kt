@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.billerbacon.interfaces.PantallaBienvenida
 import com.example.billerbacon.interfaces.PantallaIniciarSesion
+import com.example.billerbacon.interfaces.PantallaInicio
 import com.example.billerbacon.interfaces.PantallaRegistro
 
 @Composable
@@ -16,10 +17,13 @@ fun NavegacionHost() {
             PantallaBienvenida(navController)
         }
         composable(route = Navegacion.PantallaIniciarSesion.ruta) {
-            PantallaIniciarSesion()
+            PantallaIniciarSesion(navController)
         }
         composable(route = Navegacion.PantallaRegistro.ruta) {
-            PantallaRegistro()
+            PantallaRegistro(navController)
+        }
+        composable(route = Navegacion.PantallaInicio.ruta) {
+            PantallaInicio(navController)
         }
     }
 }
