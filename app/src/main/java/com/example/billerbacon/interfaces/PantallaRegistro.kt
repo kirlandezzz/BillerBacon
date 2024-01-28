@@ -117,7 +117,7 @@ fun PantallaRegistro(navController: NavController) {
                                         message = "Registro exitoso",
                                         duration = SnackbarDuration.Short
                                     )
-                                    navController.navigate(Navegacion.PantallaRegistro.ruta)
+                                    navController.navigate(Navegacion.PantallaIniciarSesion.ruta)
                                 }
                             }
                         )

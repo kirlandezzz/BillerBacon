@@ -5,8 +5,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.recaptcha.Recaptcha
+import com.google.android.recaptcha.RecaptchaAction
+import com.google.android.recaptcha.RecaptchaException
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
+import com.google.firebase.auth.internal.RecaptchaActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -21,7 +28,7 @@ class ViewModelLogin : ViewModel() {
 
     //Función necesaria para validar el usuario y la contraseña
     fun iniciarSesion(email: String, clave: String, home: () -> Unit) = viewModelScope.launch {
-        _cargando.value = true
+
         try {
             auth.signInWithEmailAndPassword(email, clave).addOnCompleteListener { task ->
 
@@ -31,20 +38,20 @@ class ViewModelLogin : ViewModel() {
                 } else {
                     // Inicio de sesión fallido
                     _mensajeError.value = "Correo electrónico o clave incorrectos"
-                    _mensajeError.value = null
                 }
             }
         } catch (ex: FirebaseAuthInvalidCredentialsException) {
 
             _mensajeError.value = "Las credenciales proporcionadas son incorrectas o han expirado"
             Log.d("BillerBacon", "IniciarSesion: Credenciales inválidas - ${ex.message}")
-            _mensajeError.value = null
+
+        } catch (ex: FirebaseTooManyRequestsException) {
+            _mensajeError.value = "Se ha bloqueado el acceso temporalmente debido a demasiados intentos fallidos. Intente de nuevo más tarde."
         } catch (ex: Exception) {
 
             _mensajeError.value =
                 "Error en el inicio de sesión: ${ex.message ?: "Error desconocido"}"
             Log.d("BillerBacon", "IniciarSesion: ${ex.message}")
-            _mensajeError.value = null
         }
     }
 
