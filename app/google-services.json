@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "968663735458",
+    "project_id": "billerbacon-8a510",
+    "storage_bucket": "billerbacon-8a510.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968663735458:android:aa187fbe91332deeb28bfb",
+        "android_client_info": {
+          "package_name": "com.example.billerbacon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQ9TWHrwGObOrDOqNR-pvrqp2f37vDWmE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
