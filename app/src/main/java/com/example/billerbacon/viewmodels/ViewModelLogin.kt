@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.internal.RecaptchaActivity
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
 import kotlinx.coroutines.launch
@@ -61,6 +62,8 @@ class ViewModelLogin : ViewModel() {
             _cargando.value == true
             auth.createUserWithEmailAndPassword(email, clave).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    val displayName = task.result?.user?.email?.split("@")?.get(0) ?: "User"
+                    crearUsuario(displayName)
                     home()
                 } else {
                     Log.d("BillerBacon", "registrarUsuario: ${task.result.toString()}")
@@ -68,5 +71,16 @@ class ViewModelLogin : ViewModel() {
                 _cargando.value == false
             }
         }
+    }
+
+    private fun crearUsuario(displayName: String?) {
+        val userId = auth.currentUser?.uid
+        val user = mutableMapOf<String, Any>()
+
+        user["user_id"] = userId.toString()
+        user["display_name"] = displayName.toString()
+        FirebaseFirestore.getInstance().collection("users").add(user)
+            .addOnSuccessListener { Log.d("BillerBacon", "crearUsuario: Creado usuario ${it.id}") }
+            .addOnFailureListener { Log.d("BillerBacon", "crearUsuario: Fallida la creacion ${it}")}
     }
 }

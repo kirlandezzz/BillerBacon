@@ -104,7 +104,7 @@ fun PantallaRegistro(navController: NavController) {
         Button(
             onClick = {
                 errorClave = clave != confirmacionClave
-                if (!errorClave) {
+                if (!errorClave || !(correo.contains("@") && correo.contains("."))) {
                     // Comprueba si el correo electrónico y la clave están vacíos
                     if (correo.isNotBlank() && clave.isNotBlank()) {
                         viewmodellogin.registrarUsuario(
