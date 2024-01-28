@@ -30,4 +30,19 @@ class ViewModelLogin: ViewModel() {
             Log.d("BillerBacon", "IniciarSesion: ${ex.message}")
         }
     }
+
+    //Función necesaria para crear usuario
+    fun registrarUsuario(email: String, clave: String, home: () -> Unit) {
+        if(_cargando.value == false) {
+            _cargando.value == true
+            auth.createUserWithEmailAndPassword(email, clave).addOnCompleteListener { task ->
+                if(task.isSuccessful) {
+                    home()
+                }else{
+                    Log.d("BillerBacon", "registrarUsuario: ${task.result.toString()}")
+                }
+                _cargando.value == false
+            }
+        }
+    }
 }
