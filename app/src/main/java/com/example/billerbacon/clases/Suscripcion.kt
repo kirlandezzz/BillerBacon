@@ -8,9 +8,9 @@ import java.time.temporal.ChronoUnit
 class Suscripcion(imagen: String, nombre: String, fechaInicio: LocalDate, fechaCaducidad: LocalDate, precio: Double) {
     val imagen = imagen
     val nombre = nombre
-    val fechaInicio = fechaInicio
-    val fechaCaducidad = fechaCaducidad
-    val precio = precio
+    var fechaInicio = fechaInicio
+    var fechaCaducidad = fechaCaducidad
+    var precio = precio
 
     @RequiresApi(Build.VERSION_CODES.O)
     public fun calcularFecha(): Int {
