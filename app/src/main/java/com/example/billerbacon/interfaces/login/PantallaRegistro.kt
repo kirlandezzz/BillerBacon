@@ -1,4 +1,4 @@
-package com.example.billerbacon.interfaces
+package com.example.billerbacon.interfaces.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
