@@ -28,6 +28,7 @@ import androidx.navigation.NavController
 import com.example.billerbacon.clases.Suscripcion
 import com.example.billerbacon.navegacion.Navegacion
 import com.example.billerbacon.viewmodels.ViewModelMain
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
@@ -47,6 +48,15 @@ fun PantallaInicio(navController: NavController? = null) {
     lista.add(suscripcion)
     val viewModel:ViewModelMain = viewModel()
     val suscripciones by viewModel.suscripciones.collectAsState()
+
+    val usuarioId = FirebaseAuth.getInstance().currentUser?.uid
+    println("usuarioID: $usuarioId")
+
+    LaunchedEffect(usuarioId) {
+        usuarioId?.let { id ->
+            viewModel.cargarSuscripcionesDeUsuario(id)
+        }
+    }
 
     Scaffold(
         topBar = {

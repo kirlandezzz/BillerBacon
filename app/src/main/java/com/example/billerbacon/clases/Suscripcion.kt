@@ -5,12 +5,16 @@ import androidx.annotation.RequiresApi
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-class Suscripcion(imagen: String, nombre: String, fechaInicio: LocalDate, fechaCaducidad: LocalDate, precio: Double) {
-    val imagen = imagen
-    val nombre = nombre
-    var fechaInicio = fechaInicio
-    var fechaCaducidad = fechaCaducidad
-    var precio = precio
+class Suscripcion @RequiresApi(Build.VERSION_CODES.O) constructor(
+    var imagen: String = "",
+    var nombre: String = "",
+    var fechaInicio: LocalDate,
+    var fechaCaducidad: LocalDate,
+    var precio: Double = 0.0,
+    val usuarioId: String = "" // Referencia al ID del usuario
+) {
+    @RequiresApi(Build.VERSION_CODES.O)
+    constructor() : this("", "", LocalDate.now(), LocalDate.now(), 0.0)
 
     @RequiresApi(Build.VERSION_CODES.O)
     public fun calcularFecha(): Int {
@@ -20,3 +24,5 @@ class Suscripcion(imagen: String, nombre: String, fechaInicio: LocalDate, fechaC
         return diasRestantes.toInt()
     }
 }
+
+
