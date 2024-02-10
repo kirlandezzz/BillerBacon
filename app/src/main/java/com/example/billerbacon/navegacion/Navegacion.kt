@@ -5,4 +5,5 @@ sealed class Navegacion(val ruta: String) {
     object PantallaIniciarSesion: Navegacion("PantallaIniciarSesion")
     object PantallaRegistro: Navegacion("PantallaRegistro")
     object PantallaInicio: Navegacion("PantallaInicio")
+    object PantallaInformacion: Navegacion("PantallaInformacion")
 }

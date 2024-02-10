@@ -1,5 +1,7 @@
 package com.example.billerbacon.navegacion
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,7 +10,9 @@ import com.example.billerbacon.interfaces.login.PantallaBienvenida
 import com.example.billerbacon.interfaces.login.PantallaIniciarSesion
 import com.example.billerbacon.interfaces.main.PantallaInicio
 import com.example.billerbacon.interfaces.login.PantallaRegistro
+import com.example.billerbacon.interfaces.main.PantallaInformacion
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavegacionHost() {
     val navController = rememberNavController()
@@ -24,6 +28,9 @@ fun NavegacionHost() {
         }
         composable(route = Navegacion.PantallaInicio.ruta) {
             PantallaInicio(navController)
+        }
+        composable(route = Navegacion.PantallaInformacion.ruta) {
+            PantallaInformacion()
         }
     }
 }

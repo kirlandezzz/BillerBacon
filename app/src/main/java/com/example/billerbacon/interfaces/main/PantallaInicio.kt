@@ -36,17 +36,10 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaInicio(navController: NavController? = null) {
+fun PantallaInicio(navController: NavController) {
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var showDialog by remember { mutableStateOf(false) }
-    var lista = ArrayList<Suscripcion>()
-    val suscripcion = Suscripcion(
-        imagen = "Xbox", nombre = "Game Pass",
-        fechaInicio = LocalDate.of(2024, 1, 1), fechaCaducidad = LocalDate.of(2024, 3, 1),
-        precio = 12.99
-    )
-    lista.add(suscripcion)
-    val viewModel:ViewModelMain = viewModel()
+    val viewModel: ViewModelMain = viewModel()
     val suscripciones by viewModel.suscripciones.collectAsState()
 
     val usuarioId = FirebaseAuth.getInstance().currentUser?.uid
@@ -93,7 +86,9 @@ fun PantallaInicio(navController: NavController? = null) {
         ) {
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().padding(paddingValues)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(paddingValues)
             ) {
                 items(suscripciones) { item ->
                     Box(contentAlignment = Alignment.Center, modifier = Modifier
@@ -103,7 +98,7 @@ fun PantallaInicio(navController: NavController? = null) {
                         .clip(RoundedCornerShape(15.dp))
                         .background(Color.White)
                         .border(BorderStroke(6.dp, Color.Gray), RoundedCornerShape(15.dp))
-                        .clickable { }
+                        .clickable { navController.navigate("PantallaInformacion") }
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -161,10 +156,4 @@ fun PantallaInicio(navController: NavController? = null) {
             }
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun prev() { PantallaInicio(null)
 }
