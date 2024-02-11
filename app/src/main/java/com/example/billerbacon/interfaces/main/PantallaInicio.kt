@@ -18,8 +18,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -43,15 +47,12 @@ import java.util.*
 fun PantallaInicio(navController: NavController? = null) {
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var showDialog by remember { mutableStateOf(false) }
-
     val viewModel:ViewModelMain = viewModel()
     val suscripciones by viewModel.suscripciones.collectAsState()
-
     val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-
-
     val fecha = LocalDate.parse("10-02-2024", formatter)
     val usuarioID = FirebaseAuth.getInstance().currentUser?.uid
+    var paddingNumeros: Dp
     println("usuarioID: $usuarioID")
 
     LaunchedEffect(usuarioID) {
@@ -73,7 +74,7 @@ fun PantallaInicio(navController: NavController? = null) {
             containerColor = Color(0xFFffe8c0)
         )
         )
-    }, floatingActionButton = {
+    },floatingActionButton = {
         FloatingActionButton(
             onClick = { showDialog = true },
             containerColor = MaterialTheme.colorScheme.secondary
@@ -94,13 +95,14 @@ fun PantallaInicio(navController: NavController? = null) {
                     .padding(paddingValues)
             ) {
                 items(suscripciones) { item ->
+                    paddingNumeros = if (item.calcularFecha() > 9) 10.dp else 18.dp
                     Box(contentAlignment = Alignment.Center, modifier = Modifier
                         .width(400.dp)
                         .height(100.dp)
                         .padding(10.dp)
                         .clip(RoundedCornerShape(15.dp))
                         .background(Color.White)
-                        .border(BorderStroke(6.dp, Color.Gray), RoundedCornerShape(15.dp))
+                        .border(BorderStroke(6.dp, Color.LightGray), RoundedCornerShape(15.dp))
                         .clickable { navController?.navigate("PantallaInformacion") }
                     ) {
                         Row(
@@ -108,12 +110,16 @@ fun PantallaInicio(navController: NavController? = null) {
                             horizontalArrangement = Arrangement.SpaceAround,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "${item.imagen}   ")
-                            Text(text = "${item.precio}   ")
+                            Box(Modifier.width(70.dp)) {
+                                Text(text = item.imagen)
+                            }
+                            Box(Modifier.width(50.dp)) {
+                                Text(text = "${item.precio}")
+                            }
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(15.dp))
-                                    .background(Color.Gray)
+                                    .background(Color.LightGray)
                                     .width(50.dp)
                                     .wrapContentSize(Alignment.Center)
                                     .height(50.dp),
@@ -124,9 +130,15 @@ fun PantallaInicio(navController: NavController? = null) {
                                     modifier = Modifier
                                         .wrapContentSize(Alignment.Center)
                                         .fillMaxWidth()
-                                        .padding(start = 10.dp),
+                                        .padding(start = paddingNumeros),
                                     fontSize = 25.sp,
-                                    color = Color.White
+                                    color = Color.White,
+                                    style = TextStyle(
+                                        shadow = Shadow(
+                                            color = Color.Black,
+                                            blurRadius = 6f,
+                                        )
+                                    )
                                 )
                             }
                         }

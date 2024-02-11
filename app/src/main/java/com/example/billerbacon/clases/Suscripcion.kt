@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.firebase.Timestamp
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 class Suscripcion @RequiresApi(Build.VERSION_CODES.O) constructor(
@@ -21,7 +22,8 @@ class Suscripcion @RequiresApi(Build.VERSION_CODES.O) constructor(
     public fun calcularFecha(): Int {
         var diasRestantes: Long = 0
         val fechaActual = LocalDate.now()
-        //diasRestantes = ChronoUnit.DAYS.between(fechaActual, fechaCaducidad)
+        val fechaCaducidadLocal = fechaCaducidad.toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        diasRestantes = ChronoUnit.DAYS.between(fechaActual, fechaCaducidadLocal)
         return diasRestantes.toInt()
     }
 }
