@@ -28,56 +28,59 @@ import androidx.navigation.NavController
 import com.example.billerbacon.clases.Suscripcion
 import com.example.billerbacon.navegacion.Navegacion
 import com.example.billerbacon.viewmodels.ViewModelMain
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaInicio(navController: NavController) {
+fun PantallaInicio(navController: NavController? = null) {
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var showDialog by remember { mutableStateOf(false) }
-    val viewModel: ViewModelMain = viewModel()
+
+    val viewModel:ViewModelMain = viewModel()
     val suscripciones by viewModel.suscripciones.collectAsState()
 
-    val usuarioId = FirebaseAuth.getInstance().currentUser?.uid
-    println("usuarioID: $usuarioId")
+    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
-    LaunchedEffect(usuarioId) {
-        usuarioId?.let { id ->
+
+    val fecha = LocalDate.parse("10-02-2024", formatter)
+    val usuarioID = FirebaseAuth.getInstance().currentUser?.uid
+    println("usuarioID: $usuarioID")
+
+    LaunchedEffect(usuarioID) {
+        usuarioID?.let { id ->
             viewModel.cargarSuscripcionesDeUsuario(id)
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
-                        Text(text = currentDate, color = Color.Black)
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /* handle navigation icon click */ }) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
-                    }
-                },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = Color(0xFFffe8c0)
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showDialog = true },
-                containerColor = MaterialTheme.colorScheme.secondary
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
+    Scaffold(topBar = {
+        TopAppBar(title = {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
+                Text(text = currentDate, color = Color.Black)
             }
-        },
-        floatingActionButtonPosition = FabPosition.End
+        }, navigationIcon = {
+            IconButton(onClick = { /* handle navigation icon click */ }) {
+                Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
+            }
+        }, colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = Color(0xFFffe8c0)
+        )
+        )
+    }, floatingActionButton = {
+        FloatingActionButton(
+            onClick = { showDialog = true },
+            containerColor = MaterialTheme.colorScheme.secondary
+        ) {
+            Icon(Icons.Filled.Add, contentDescription = "Add")
+        }
+    }, floatingActionButtonPosition = FabPosition.End
     ) { paddingValues ->
         Column(
             Modifier
@@ -98,7 +101,7 @@ fun PantallaInicio(navController: NavController) {
                         .clip(RoundedCornerShape(15.dp))
                         .background(Color.White)
                         .border(BorderStroke(6.dp, Color.Gray), RoundedCornerShape(15.dp))
-                        .clickable { navController.navigate("PantallaInformacion") }
+                        .clickable { navController?.navigate("PantallaInformacion") }
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -113,10 +116,12 @@ fun PantallaInicio(navController: NavController) {
                                     .background(Color.Gray)
                                     .width(50.dp)
                                     .wrapContentSize(Alignment.Center)
-                                    .height(50.dp), contentAlignment = Alignment.Center
+                                    .height(50.dp),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "${item.calcularFecha()}    ", modifier = Modifier
+                                    text = "${item.calcularFecha()}    ",
+                                    modifier = Modifier
                                         .wrapContentSize(Alignment.Center)
                                         .fillMaxWidth()
                                         .padding(start = 10.dp),
@@ -132,28 +137,111 @@ fun PantallaInicio(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Color(0xFFffe8c0)), // Setting the background color
-                contentAlignment = Alignment.Center
+                    .background(Color(0xFFffe8c0)), contentAlignment = Alignment.Center
             ) {
-                // Your content goes here, for instance, a list of items
+
                 if (showDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showDialog = false },
-                        confirmButton = {
-                            TextButton(onClick = { showDialog = false }) {
-                                Text("Confirm")
-                            }
-                        },
+                    var nombreSuscripcion by remember { mutableStateOf("") }
+                    var precioSuscripcion by remember { mutableStateOf("") }
+                    var fechaInicio by remember { mutableStateOf("") }
+                    var fechaCaducidad by remember { mutableStateOf("") }
+
+                    AlertDialog(onDismissRequest = { showDialog = false }, title = {
+                        Text(
+                            text = "Nueva Suscripción",
+                        )
+                    }, text = {
+                        Column {
+                            OutlinedTextField(
+                                value = nombreSuscripcion,
+                                onValueChange = { nombreSuscripcion = it },
+                                label = { Text("Nombre de la suscripción") },
+
+                                )
+                            OutlinedTextField(
+                                value = precioSuscripcion,
+                                onValueChange = { precioSuscripcion = it },
+                                label = { Text("Precio") },
+
+                                )
+                            OutlinedTextField(
+                                value = fechaInicio,
+                                onValueChange = { fechaInicio = it },
+                                label = { Text("Fecha inicio") },
+
+                                )
+                            OutlinedTextField(
+                                value = fechaCaducidad,
+                                onValueChange = { fechaCaducidad = it },
+                                label = { Text("Fecha caducidad") },
+
+                                )
+                        }
+                    }, confirmButton = {
+                        Button(
+                            onClick = {
+                                try {
+                                    // Convertir fechas de String a Timestamp
+                                    val fechaInicioParsed = LocalDate.parse(fechaInicio, formatter)
+                                        .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                    val fechaCaducidadParsed =
+                                        LocalDate.parse(fechaCaducidad, formatter)
+                                            .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                    val timestampInicio = Timestamp(Date.from(fechaInicioParsed))
+                                    val timestampCaducidad =
+                                        Timestamp(Date.from(fechaCaducidadParsed))
+
+                                    // Conversión de precio de String a Double
+                                    val precioParsed = precioSuscripcion.toDoubleOrNull()
+                                    if (precioParsed == null) {
+                                        // Manejar error de conversión
+                                        return@Button
+                                    }
+
+                                    // Crear objeto Suscripcion con Timestamps
+                                    val suscripcion = Suscripcion(
+                                        imagen = nombreSuscripcion,
+                                        nombre = nombreSuscripcion,
+                                        fechaInicio = timestampInicio,
+                                        fechaCaducidad = timestampCaducidad,
+                                        precio = precioParsed,
+                                        usuarioID = usuarioID!!
+                                    )
+
+                                    // Llamar a ViewModel para agregar suscripción
+                                    viewModel.agregarSuscripcion(suscripcion)
+
+                                    // Resetear diálogo
+                                    showDialog = false
+                                } catch (e: DateTimeParseException) {
+                                    // Manejar errores de formato de fecha
+                                }
+                            },
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            Text("Subir")
+                        }
+                    },
+
+
                         dismissButton = {
-                            TextButton(onClick = { showDialog = false }) {
-                                Text("Dismiss")
+                            TextButton(
+                                onClick = { showDialog = false }, shape = RoundedCornerShape(50)
+                            ) {
+                                Text(
+                                    "Cancelar", color = MaterialTheme.colorScheme.error
+                                )
                             }
-                        },
-                        title = { Text(text = "Add Subscription") },
-                        text = { Text(text = "Fill in the details for the new subscription.") }
+                        }, containerColor = Color(0xFFffe8c0), shape = RoundedCornerShape(12.dp)
                     )
                 }
             }
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+fun prev() { PantallaInicio(null)
 }
