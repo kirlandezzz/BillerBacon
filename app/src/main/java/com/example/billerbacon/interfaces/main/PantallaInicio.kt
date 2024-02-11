@@ -1,8 +1,10 @@
 package com.example.billerbacon.interfaces.main
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,9 +20,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.billerbacon.R
 import com.example.billerbacon.clases.Suscripcion
 import com.example.billerbacon.navegacion.Navegacion
 import com.example.billerbacon.viewmodels.ViewModelMain
@@ -47,9 +50,13 @@ import java.util.*
 fun PantallaInicio(navController: NavController? = null) {
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var showDialog by remember { mutableStateOf(false) }
+
     val viewModel:ViewModelMain = viewModel()
     val suscripciones by viewModel.suscripciones.collectAsState()
+
     val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    val context = LocalContext.current
+
     val fecha = LocalDate.parse("10-02-2024", formatter)
     val usuarioID = FirebaseAuth.getInstance().currentUser?.uid
     var paddingNumeros: Dp
@@ -74,7 +81,7 @@ fun PantallaInicio(navController: NavController? = null) {
             containerColor = Color(0xFFffe8c0)
         )
         )
-    },floatingActionButton = {
+    }, floatingActionButton = {
         FloatingActionButton(
             onClick = { showDialog = true },
             containerColor = MaterialTheme.colorScheme.secondary
@@ -114,7 +121,7 @@ fun PantallaInicio(navController: NavController? = null) {
                                 Text(text = item.imagen)
                             }
                             Box(Modifier.width(50.dp)) {
-                                Text(text = "${item.precio}")
+                                Text(text = "${item.precio}€" )
                             }
                             Box(
                                 modifier = Modifier
@@ -194,21 +201,20 @@ fun PantallaInicio(navController: NavController? = null) {
                             onClick = {
                                 try {
                                     // Convertir fechas de String a Timestamp
-                                    val fechaInicioParsed = LocalDate.parse(fechaInicio, formatter)
-                                        .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                    val fechaInicioParsed =
+                                        LocalDate.parse(fechaInicio, formatter)
+                                            .atStartOfDay(ZoneId.systemDefault()).toInstant()
                                     val fechaCaducidadParsed =
                                         LocalDate.parse(fechaCaducidad, formatter)
                                             .atStartOfDay(ZoneId.systemDefault()).toInstant()
-                                    val timestampInicio = Timestamp(Date.from(fechaInicioParsed))
+                                    val timestampInicio =
+                                        Timestamp(Date.from(fechaInicioParsed))
                                     val timestampCaducidad =
                                         Timestamp(Date.from(fechaCaducidadParsed))
 
                                     // Conversión de precio de String a Double
-                                    val precioParsed = precioSuscripcion.toDoubleOrNull()
-                                    if (precioParsed == null) {
-                                        // Manejar error de conversión
-                                        return@Button
-                                    }
+                                    val precioParsed = precioSuscripcion.toDouble()
+
 
                                     // Crear objeto Suscripcion con Timestamps
                                     val suscripcion = Suscripcion(
@@ -226,13 +232,24 @@ fun PantallaInicio(navController: NavController? = null) {
                                     // Resetear diálogo
                                     showDialog = false
                                 } catch (e: DateTimeParseException) {
-                                    // Manejar errores de formato de fecha
+                                    // Mostrar Toast con mensaje de error
+                                    Toast.makeText(
+                                        context,
+                                        "Formato de fecha inválido. Usa el formato dd-MM-yyyy.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } catch (e: NumberFormatException) {
+                                    Toast.makeText(
+                                        context,
+                                        "El precio debe ser un numero usando decimal con punto",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
-                            },
-                            shape = RoundedCornerShape(50)
+                            }, shape = RoundedCornerShape(50)
                         ) {
                             Text("Subir")
                         }
+
                     },
 
 
@@ -248,6 +265,7 @@ fun PantallaInicio(navController: NavController? = null) {
                     )
                 }
             }
+
         }
     }
 }
