@@ -1,5 +1,8 @@
 package com.example.billerbacon.interfaces.main
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +16,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -28,21 +34,29 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.billerbacon.viewmodels.ViewModelMain
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PantallaInformacion() {
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    val viewModel: ViewModelMain = viewModel()
+    val suscripciones by viewModel.suscripciones.collectAsState()
+    val pagerState = rememberPagerState(pageCount = { suscripciones.size })
     Scaffold(
             topBar = {
                 TopAppBar(
@@ -68,49 +82,60 @@ fun PantallaInformacion() {
             .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier
-                .background(Color.White, shape = RoundedCornerShape(25.dp))
-                .width(350.dp)
-                .height(500.dp)
-                .padding(10.dp)
-            ) {
-                Column(Modifier.fillMaxWidth().fillMaxHeight()) {
-                    Row(horizontalArrangement = Arrangement.SpaceAround,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Box() {
-                            Text(text = "Netflix")
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(text = "Precio Actual", fontSize = 20.sp)
-                            Text(text = "12.99€", fontSize = 20.sp)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(50.dp))
-                    Box(Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier
-                            .background(Color.LightGray, shape = RoundedCornerShape(25.dp))
+            HorizontalPager(state = pagerState,
+                key = { suscripciones[it] },
+                pageSize = PageSize.Fill
+            ) { index ->
+                Box(modifier = Modifier
+                    .background(Color.White, shape = RoundedCornerShape(25.dp))
+                    .width(350.dp)
+                    .height(500.dp)
+                    .padding(10.dp)
+                ) {
+                    Column(
+                        Modifier
                             .fillMaxWidth()
-                            .padding(20.dp)
+                            .fillMaxHeight()) {
+                        Row(horizontalArrangement = Arrangement.SpaceAround,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            GenerarEstructuraFacturacion(texto1 = "Próxima Factura", texto2 = "12.99€")
-                            Spacer(modifier = Modifier.height(10.dp))
-                            GenerarEstructuraFacturacion(texto1 = "Fecha", texto2 = "23-11-2024")
+                            Box() {
+                                Text(text = suscripciones[index].nombre)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(text = "Precio Actual", fontSize = 20.sp)
+                                Text(text = "${suscripciones[index].precio}", fontSize = 20.sp)
+                            }
                         }
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Box(Modifier.fillMaxWidth().fillMaxHeight()
-                    ) {
-                        Column(modifier = Modifier
-                            .background(Color(0xFFFFE587), shape = RoundedCornerShape(25.dp))
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(20.dp)
+                        Spacer(modifier = Modifier.height(50.dp))
+                        Box(Modifier.fillMaxWidth()
                         ) {
-                            for (i in 1..6) {
-                                GenerarEstructuraFacturacion(texto1 = "23-12-2024", texto2 = "12.99€")
+                            Column(modifier = Modifier
+                                .background(Color.LightGray, shape = RoundedCornerShape(25.dp))
+                                .fillMaxWidth()
+                                .padding(20.dp)
+                            ) {
+                                GenerarEstructuraFacturacion(texto1 = "Próxima Factura", texto2 = "12.99€")
                                 Spacer(modifier = Modifier.height(10.dp))
+                                GenerarEstructuraFacturacion(texto1 = "Fecha", texto2 = "23-11-2024")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                        ) {
+                            Column(modifier = Modifier
+                                .background(Color(0xFFFFE587), shape = RoundedCornerShape(25.dp))
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .padding(20.dp)
+                            ) {
+                                for (i in 1..6) {
+                                    GenerarEstructuraFacturacion(texto1 = "23-12-2024", texto2 = "12.99€")
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                }
                             }
                         }
                     }
@@ -130,6 +155,7 @@ fun GenerarEstructuraFacturacion(texto1: String, texto2: String) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun Preview() {
