@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.billerbacon.viewmodels.ViewModelMain
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -57,46 +59,59 @@ fun PantallaInformacion() {
     val viewModel: ViewModelMain = viewModel()
     val suscripciones by viewModel.suscripciones.collectAsState()
     val pagerState = rememberPagerState(pageCount = { suscripciones.size })
+    val usuarioID = FirebaseAuth.getInstance().currentUser?.uid
+    LaunchedEffect(usuarioID) {
+        usuarioID?.let { id ->
+            viewModel.cargarSuscripcionesDeUsuario(id)
+        }
+    }
     Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
-                            Text(text = currentDate, color = Color.Black)
-                        }
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { /* handle navigation icon click */ }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
-                        }
-                    },
-                    colors = TopAppBarDefaults.smallTopAppBarColors(
-                        containerColor = Color(0xFFffe8c0)
-                    )
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
+                        Text(text = currentDate, color = Color.Black)
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { /* handle navigation icon click */ }) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
+                    }
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = Color(0xFFffe8c0)
                 )
-            }
+            )
+        }
     ) { paddingValues ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFffe8c0))
-            .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HorizontalPager(state = pagerState,
-                key = { suscripciones[it] },
-                pageSize = PageSize.Fill
+
+        HorizontalPager(
+            state = pagerState,
+            pageSize = PageSize.Fill,
+            modifier = Modifier.fillMaxWidth(),
+
             ) { index ->
-                Box(modifier = Modifier
-                    .background(Color.White, shape = RoundedCornerShape(25.dp))
-                    .width(350.dp)
-                    .height(500.dp)
-                    .padding(10.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFffe8c0))
+                    .padding(paddingValues),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                Box(
+                    modifier = Modifier
+                        .background(Color.White, shape = RoundedCornerShape(25.dp))
+                        .width(350.dp)
+                        .height(500.dp)
+                        .padding(10.dp)
                 ) {
                     Column(
                         Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight()) {
-                        Row(horizontalArrangement = Arrangement.SpaceAround,
+                            .fillMaxHeight()
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceAround,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Box() {
@@ -108,16 +123,24 @@ fun PantallaInformacion() {
                             }
                         }
                         Spacer(modifier = Modifier.height(50.dp))
-                        Box(Modifier.fillMaxWidth()
+                        Box(
+                            Modifier.fillMaxWidth()
                         ) {
-                            Column(modifier = Modifier
-                                .background(Color.LightGray, shape = RoundedCornerShape(25.dp))
-                                .fillMaxWidth()
-                                .padding(20.dp)
+                            Column(
+                                modifier = Modifier
+                                    .background(Color.LightGray, shape = RoundedCornerShape(25.dp))
+                                    .fillMaxWidth()
+                                    .padding(20.dp)
                             ) {
-                                GenerarEstructuraFacturacion(texto1 = "Próxima Factura", texto2 = "12.99€")
+                                GenerarEstructuraFacturacion(
+                                    texto1 = "Próxima Factura",
+                                    texto2 = "12.99€"
+                                )
                                 Spacer(modifier = Modifier.height(10.dp))
-                                GenerarEstructuraFacturacion(texto1 = "Fecha", texto2 = "23-11-2024")
+                                GenerarEstructuraFacturacion(
+                                    texto1 = "Fecha",
+                                    texto2 = "23-11-2024"
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(10.dp))
@@ -126,14 +149,21 @@ fun PantallaInformacion() {
                                 .fillMaxWidth()
                                 .fillMaxHeight()
                         ) {
-                            Column(modifier = Modifier
-                                .background(Color(0xFFFFE587), shape = RoundedCornerShape(25.dp))
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .padding(20.dp)
+                            Column(
+                                modifier = Modifier
+                                    .background(
+                                        Color(0xFFFFE587),
+                                        shape = RoundedCornerShape(25.dp)
+                                    )
+                                    .fillMaxWidth()
+                                    .fillMaxHeight()
+                                    .padding(20.dp)
                             ) {
                                 for (i in 1..6) {
-                                    GenerarEstructuraFacturacion(texto1 = "23-12-2024", texto2 = "12.99€")
+                                    GenerarEstructuraFacturacion(
+                                        texto1 = "23-12-2024",
+                                        texto2 = "12.99€"
+                                    )
                                     Spacer(modifier = Modifier.height(10.dp))
                                 }
                             }
@@ -147,7 +177,8 @@ fun PantallaInformacion() {
 
 @Composable
 fun GenerarEstructuraFacturacion(texto1: String, texto2: String) {
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = texto1, fontSize = 20.sp)

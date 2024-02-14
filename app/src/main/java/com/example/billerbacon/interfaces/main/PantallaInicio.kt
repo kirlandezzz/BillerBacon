@@ -4,10 +4,12 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,21 +47,22 @@ import java.time.format.DateTimeParseException
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PantallaInicio(navController: NavController? = null) {
+
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var showDialog by remember { mutableStateOf(false) }
-
-    val viewModel:ViewModelMain = viewModel()
+    val viewModel: ViewModelMain = viewModel()
     val suscripciones by viewModel.suscripciones.collectAsState()
-
     val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
     val context = LocalContext.current
-
     val fecha = LocalDate.parse("10-02-2024", formatter)
     val usuarioID = FirebaseAuth.getInstance().currentUser?.uid
     var paddingNumeros: Dp
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var selectedSubscriptionForDeletion by remember { mutableStateOf<Suscripcion?>(null) }
+
     println("usuarioID: $usuarioID")
 
     LaunchedEffect(usuarioID) {
@@ -100,6 +103,7 @@ fun PantallaInicio(navController: NavController? = null) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(paddingValues)
+
             ) {
                 items(suscripciones) { item ->
                     paddingNumeros = if (item.calcularFecha() > 9) 10.dp else 18.dp
@@ -110,7 +114,13 @@ fun PantallaInicio(navController: NavController? = null) {
                         .clip(RoundedCornerShape(15.dp))
                         .background(Color.White)
                         .border(BorderStroke(6.dp, Color.LightGray), RoundedCornerShape(15.dp))
-                        .clickable { navController?.navigate("PantallaInformacion") }
+                        .combinedClickable(
+                            onClick = {  navController?.navigate("PantallaInformacion")  },
+                            onLongClick = {
+                                selectedSubscriptionForDeletion = item
+                                showDeleteDialog = true
+                            }
+                        )
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -121,7 +131,7 @@ fun PantallaInicio(navController: NavController? = null) {
                                 Text(text = item.imagen)
                             }
                             Box(Modifier.width(50.dp)) {
-                                Text(text = "${item.precio}€" )
+                                Text(text = "${item.precio}€")
                             }
                             Box(
                                 modifier = Modifier
@@ -246,6 +256,7 @@ fun PantallaInicio(navController: NavController? = null) {
                                     ).show()
                                 }
                             }, shape = RoundedCornerShape(50)
+
                         ) {
                             Text("Subir")
                         }
@@ -265,13 +276,28 @@ fun PantallaInicio(navController: NavController? = null) {
                     )
                 }
             }
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    title = { Text("Eliminar suscripción") },
+                    text = { Text("¿Estás seguro de que quieres eliminar esta suscripción?") },
+                    confirmButton = {
+                        Button(onClick = {
 
+
+                            showDeleteDialog = false
+                        }) {
+                            Text("Eliminar")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showDeleteDialog = false }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
         }
     }
-}
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun prev() { PantallaInicio(null)
 }
