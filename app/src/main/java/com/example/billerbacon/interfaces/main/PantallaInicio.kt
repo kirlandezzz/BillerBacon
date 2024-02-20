@@ -283,8 +283,7 @@ fun PantallaInicio(navController: NavController? = null) {
                     text = { Text("¿Estás seguro de que quieres eliminar esta suscripción?") },
                     confirmButton = {
                         Button(onClick = {
-
-
+                            viewModel.eliminarSuscripcion(selectedSubscriptionForDeletion!!.id)
                             showDeleteDialog = false
                         }) {
                             Text("Eliminar")

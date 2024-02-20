@@ -34,6 +34,7 @@ class ViewModelMain : ViewModel() {
                 val listaSuscripciones = mutableListOf<Suscripcion>()
                 snapshots?.forEach { documento ->
                     documento.toObject(Suscripcion::class.java)?.let { suscripcion ->
+                        suscripcion.id = documento.id
                         suscripcion.fechaInicio = documento.getTimestamp("fechaInicio") ?: Timestamp.now()
                         suscripcion.fechaCaducidad = documento.getTimestamp("fechaCaducidad") ?: Timestamp.now()
                         suscripcion.precio = documento.getDouble("precio") ?: 0.0
@@ -47,7 +48,6 @@ class ViewModelMain : ViewModel() {
 
 
     fun agregarSuscripcion(suscripcion: Suscripcion) {
-        // Directamente usar suscripcion que ya tiene Timestamps
         db.collection("suscripciones").add(suscripcion)
             .addOnSuccessListener { documentReference ->
                 Log.d("Firestore", "Documento agregado con ID: ${documentReference.id}")
@@ -57,6 +57,16 @@ class ViewModelMain : ViewModel() {
             }
     }
 
+    fun eliminarSuscripcion(idSuscripcion: String) {
+        db.collection("suscripciones").document(idSuscripcion)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "Documento eliminado con ID: $idSuscripcion")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error al eliminar documento", e)
+            }
+    }
 
 }
 

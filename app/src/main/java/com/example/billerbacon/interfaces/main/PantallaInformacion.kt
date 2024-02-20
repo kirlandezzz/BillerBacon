@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -168,6 +169,14 @@ fun PantallaInformacion() {
                                 }
                             }
                         }
+                    }
+                }
+                Row() {
+                    Button(onClick = { /*TODO*/ }) {
+                        Text(text = "Hola")
+                    }
+                    Button(onClick = { /*TODO*/ }) {
+                        Text(text = "Hola")
                     }
                 }
             }

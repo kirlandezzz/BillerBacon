@@ -8,6 +8,7 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 class Suscripcion @RequiresApi(Build.VERSION_CODES.O) constructor(
+    var id: String = "",
     var imagen: String = "",
     var nombre: String = "",
     var fechaInicio: Timestamp,
@@ -16,7 +17,7 @@ class Suscripcion @RequiresApi(Build.VERSION_CODES.O) constructor(
     val usuarioID: String = ""
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
-    constructor() : this("", "", Timestamp.now(), Timestamp.now(), 0.0)
+    constructor() : this("", "", "", Timestamp.now(), Timestamp.now(), 0.0)
 
     @RequiresApi(Build.VERSION_CODES.O)
     public fun calcularFecha(): Int {
@@ -24,6 +25,9 @@ class Suscripcion @RequiresApi(Build.VERSION_CODES.O) constructor(
         val fechaActual = LocalDate.now()
         val fechaCaducidadLocal = fechaCaducidad.toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
         diasRestantes = ChronoUnit.DAYS.between(fechaActual, fechaCaducidadLocal)
+        if (diasRestantes < 0) {
+            diasRestantes = 0
+        }
         return diasRestantes.toInt()
     }
 }
