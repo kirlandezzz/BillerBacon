@@ -39,6 +39,7 @@ import com.example.billerbacon.navegacion.Navegacion
 import com.example.billerbacon.viewmodels.ViewModelMain
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -50,7 +51,6 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PantallaInicio(navController: NavController? = null) {
-
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var showDialog by remember { mutableStateOf(false) }
     val viewModel: ViewModelMain = viewModel()
@@ -62,241 +62,286 @@ fun PantallaInicio(navController: NavController? = null) {
     var paddingNumeros: Dp
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedSubscriptionForDeletion by remember { mutableStateOf<Suscripcion?>(null) }
-
-    println("usuarioID: $usuarioID")
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(usuarioID) {
         usuarioID?.let { id ->
             viewModel.cargarSuscripcionesDeUsuario(id)
         }
     }
-
-    Scaffold(topBar = {
-        TopAppBar(title = {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
-                Text(text = currentDate, color = Color.Black)
-            }
-        }, navigationIcon = {
-            IconButton(onClick = { /* handle navigation icon click */ }) {
-                Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
-            }
-        }, colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = Color(0xFFffe8c0)
-        )
-        )
-    }, floatingActionButton = {
-        FloatingActionButton(
-            onClick = { showDialog = true },
-            containerColor = MaterialTheme.colorScheme.secondary
-        ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add")
-        }
-    }, floatingActionButtonPosition = FabPosition.End
-    ) { paddingValues ->
-        Column(
-            Modifier
-                .fillMaxSize()
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            Column(modifier = Modifier
                 .background(Color(0xFFffe8c0))
-        ) {
-            LazyColumn(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues)
-
+                .fillMaxHeight()
+                .width(150.dp)
             ) {
-                items(suscripciones) { item ->
-                    paddingNumeros = if (item.calcularFecha() > 9) 10.dp else 18.dp
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier
-                        .width(400.dp)
-                        .height(100.dp)
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(Color.White)
-                        .border(BorderStroke(6.dp, Color.LightGray), RoundedCornerShape(15.dp))
-                        .combinedClickable(
-                            onClick = {  navController?.navigate("PantallaInformacion")  },
-                            onLongClick = {
-                                selectedSubscriptionForDeletion = item
-                                showDeleteDialog = true
-                            }
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            verticalAlignment = Alignment.CenterVertically
+
+                DrawerItem(label = "Inicio", onClick = {
+                    scope.launch {
+                        drawerState.close()
+                    }
+                    navController?.navigate("PantallaInicio")
+
+                })
+                DrawerItem(label = "Créditos", onClick = {
+                    scope.launch {
+                        drawerState.close()
+                    }
+
+                })
+            }
+
+        }
+    )
+    {
+
+        Scaffold(topBar = {
+            TopAppBar(title = {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(text = currentDate, color = Color.Black)
+                }
+            }, navigationIcon = {
+                IconButton(onClick = {
+                    scope.launch {
+                        drawerState.open()
+                    }
+                }) {
+                    Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
+                }
+            }, colors = TopAppBarDefaults.smallTopAppBarColors(
+                containerColor = Color(0xFFffe8c0)
+            )
+            )
+        }, floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showDialog = true },
+                containerColor = MaterialTheme.colorScheme.secondary
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add")
+            }
+        }, floatingActionButtonPosition = FabPosition.End
+        ) { paddingValues ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFffe8c0))
+            ) {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues)
+
+                ) {
+                    items(suscripciones) { item ->
+                        paddingNumeros = if (item.calcularFecha() > 9) 10.dp else 18.dp
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier
+                            .width(400.dp)
+                            .height(100.dp)
+                            .padding(10.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(Color.White)
+                            .border(
+                                BorderStroke(6.dp, Color.LightGray),
+                                RoundedCornerShape(15.dp)
+                            )
+                            .combinedClickable(
+                                onClick = { navController?.navigate("PantallaInformacion") },
+                                onLongClick = {
+                                    selectedSubscriptionForDeletion = item
+                                    showDeleteDialog = true
+                                }
+                            )
                         ) {
-                            Box(Modifier.width(70.dp)) {
-                                Text(text = item.imagen)
-                            }
-                            Box(Modifier.width(50.dp)) {
-                                Text(text = "${item.precio}€")
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(15.dp))
-                                    .background(Color.LightGray)
-                                    .width(50.dp)
-                                    .wrapContentSize(Alignment.Center)
-                                    .height(50.dp),
-                                contentAlignment = Alignment.Center
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceAround,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "${item.calcularFecha()}    ",
+                                Box(Modifier.width(70.dp)) {
+                                    Text(text = item.imagen)
+                                }
+                                Box(Modifier.width(50.dp)) {
+                                    Text(text = "${item.precio}€")
+                                }
+                                Box(
                                     modifier = Modifier
+                                        .clip(RoundedCornerShape(15.dp))
+                                        .background(Color.LightGray)
+                                        .width(50.dp)
                                         .wrapContentSize(Alignment.Center)
-                                        .fillMaxWidth()
-                                        .padding(start = paddingNumeros),
-                                    fontSize = 25.sp,
-                                    color = Color.White,
-                                    style = TextStyle(
-                                        shadow = Shadow(
-                                            color = Color.Black,
-                                            blurRadius = 6f,
+                                        .height(50.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${item.calcularFecha()}    ",
+                                        modifier = Modifier
+                                            .wrapContentSize(Alignment.Center)
+                                            .fillMaxWidth()
+                                            .padding(start = paddingNumeros),
+                                        fontSize = 25.sp,
+                                        color = Color.White,
+                                        style = TextStyle(
+                                            shadow = Shadow(
+                                                color = Color.Black,
+                                                blurRadius = 6f,
+                                            )
                                         )
                                     )
-                                )
+                                }
                             }
                         }
                     }
                 }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(Color(0xFFffe8c0)), contentAlignment = Alignment.Center
-            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .background(Color(0xFFffe8c0)), contentAlignment = Alignment.Center
+                ) {
 
-                if (showDialog) {
-                    var nombreSuscripcion by remember { mutableStateOf("") }
-                    var precioSuscripcion by remember { mutableStateOf("") }
-                    var fechaInicio by remember { mutableStateOf("") }
-                    var fechaCaducidad by remember { mutableStateOf("") }
+                    if (showDialog) {
+                        var nombreSuscripcion by remember { mutableStateOf("") }
+                        var precioSuscripcion by remember { mutableStateOf("") }
+                        var fechaInicio by remember { mutableStateOf("") }
+                        var fechaCaducidad by remember { mutableStateOf("") }
 
-                    AlertDialog(onDismissRequest = { showDialog = false }, title = {
-                        Text(
-                            text = "Nueva Suscripción",
-                        )
-                    }, text = {
-                        Column {
-                            OutlinedTextField(
-                                value = nombreSuscripcion,
-                                onValueChange = { nombreSuscripcion = it },
-                                label = { Text("Nombre de la suscripción") },
+                        AlertDialog(onDismissRequest = { showDialog = false }, title = {
+                            Text(
+                                text = "Nueva Suscripción",
+                            )
+                        }, text = {
+                            Column {
+                                OutlinedTextField(
+                                    value = nombreSuscripcion,
+                                    onValueChange = { nombreSuscripcion = it },
+                                    label = { Text("Nombre de la suscripción") },
 
-                                )
-                            OutlinedTextField(
-                                value = precioSuscripcion,
-                                onValueChange = { precioSuscripcion = it },
-                                label = { Text("Precio") },
-
-                                )
-                            OutlinedTextField(
-                                value = fechaInicio,
-                                onValueChange = { fechaInicio = it },
-                                label = { Text("Fecha inicio") },
-
-                                )
-                            OutlinedTextField(
-                                value = fechaCaducidad,
-                                onValueChange = { fechaCaducidad = it },
-                                label = { Text("Fecha caducidad") },
-
-                                )
-                        }
-                    }, confirmButton = {
-                        Button(
-                            onClick = {
-                                try {
-                                    // Convertir fechas de String a Timestamp
-                                    val fechaInicioParsed =
-                                        LocalDate.parse(fechaInicio, formatter)
-                                            .atStartOfDay(ZoneId.systemDefault()).toInstant()
-                                    val fechaCaducidadParsed =
-                                        LocalDate.parse(fechaCaducidad, formatter)
-                                            .atStartOfDay(ZoneId.systemDefault()).toInstant()
-                                    val timestampInicio =
-                                        Timestamp(Date.from(fechaInicioParsed))
-                                    val timestampCaducidad =
-                                        Timestamp(Date.from(fechaCaducidadParsed))
-
-                                    // Conversión de precio de String a Double
-                                    val precioParsed = precioSuscripcion.toDouble()
-
-
-                                    // Crear objeto Suscripcion con Timestamps
-                                    val suscripcion = Suscripcion(
-                                        imagen = nombreSuscripcion,
-                                        nombre = nombreSuscripcion,
-                                        fechaInicio = timestampInicio,
-                                        fechaCaducidad = timestampCaducidad,
-                                        precio = precioParsed,
-                                        usuarioID = usuarioID!!
                                     )
+                                OutlinedTextField(
+                                    value = precioSuscripcion,
+                                    onValueChange = { precioSuscripcion = it },
+                                    label = { Text("Precio") },
 
-                                    // Llamar a ViewModel para agregar suscripción
-                                    viewModel.agregarSuscripcion(suscripcion)
+                                    )
+                                OutlinedTextField(
+                                    value = fechaInicio,
+                                    onValueChange = { fechaInicio = it },
+                                    label = { Text("Fecha inicio") },
 
-                                    // Resetear diálogo
-                                    showDialog = false
-                                } catch (e: DateTimeParseException) {
-                                    // Mostrar Toast con mensaje de error
-                                    Toast.makeText(
-                                        context,
-                                        "Formato de fecha inválido. Usa el formato dd-MM-yyyy.",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                } catch (e: NumberFormatException) {
-                                    Toast.makeText(
-                                        context,
-                                        "El precio debe ser un numero usando decimal con punto",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }, shape = RoundedCornerShape(50)
+                                    )
+                                OutlinedTextField(
+                                    value = fechaCaducidad,
+                                    onValueChange = { fechaCaducidad = it },
+                                    label = { Text("Fecha caducidad") },
 
-                        ) {
-                            Text("Subir")
-                        }
-
-                    },
-
-
-                        dismissButton = {
-                            TextButton(
-                                onClick = { showDialog = false }, shape = RoundedCornerShape(50)
-                            ) {
-                                Text(
-                                    "Cancelar", color = MaterialTheme.colorScheme.error
-                                )
+                                    )
                             }
-                        }, containerColor = Color(0xFFffe8c0), shape = RoundedCornerShape(12.dp)
+                        }, confirmButton = {
+                            Button(
+                                onClick = {
+                                    try {
+                                        // Convertir fechas de String a Timestamp
+                                        val fechaInicioParsed =
+                                            LocalDate.parse(fechaInicio, formatter)
+                                                .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                        val fechaCaducidadParsed =
+                                            LocalDate.parse(fechaCaducidad, formatter)
+                                                .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                        val timestampInicio =
+                                            Timestamp(Date.from(fechaInicioParsed))
+                                        val timestampCaducidad =
+                                            Timestamp(Date.from(fechaCaducidadParsed))
+
+                                        // Conversión de precio de String a Double
+                                        val precioParsed = precioSuscripcion.toDouble()
+
+
+                                        // Crear objeto Suscripcion con Timestamps
+                                        val suscripcion = Suscripcion(
+                                            imagen = nombreSuscripcion,
+                                            nombre = nombreSuscripcion,
+                                            fechaInicio = timestampInicio,
+                                            fechaCaducidad = timestampCaducidad,
+                                            precio = precioParsed,
+                                            usuarioID = usuarioID!!
+                                        )
+
+                                        // Llamar a ViewModel para agregar suscripción
+                                        viewModel.agregarSuscripcion(suscripcion)
+
+                                        // Resetear diálogo
+                                        showDialog = false
+                                    } catch (e: DateTimeParseException) {
+                                        // Mostrar Toast con mensaje de error
+                                        Toast.makeText(
+                                            context,
+                                            "Formato de fecha inválido. Usa el formato dd-MM-yyyy.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    } catch (e: NumberFormatException) {
+                                        Toast.makeText(
+                                            context,
+                                            "El precio debe ser un numero usando decimal con punto",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }, shape = RoundedCornerShape(50)
+
+                            ) {
+                                Text("Subir")
+                            }
+
+                        },
+
+
+                            dismissButton = {
+                                TextButton(
+                                    onClick = { showDialog = false }, shape = RoundedCornerShape(50)
+                                ) {
+                                    Text(
+                                        "Cancelar", color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }, containerColor = Color(0xFFffe8c0), shape = RoundedCornerShape(12.dp)
+                        )
+                    }
+                }
+                if (showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false },
+                        title = { Text("Eliminar suscripción") },
+                        text = { Text("¿Estás seguro de que quieres eliminar esta suscripción?") },
+                        confirmButton = {
+                            Button(onClick = {
+                                viewModel.eliminarSuscripcion(selectedSubscriptionForDeletion!!.id)
+                                showDeleteDialog = false
+                            }) {
+                                Text("Eliminar")
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showDeleteDialog = false }) {
+                                Text("Cancelar")
+                            }
+                        }
                     )
                 }
             }
-            if (showDeleteDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDeleteDialog = false },
-                    title = { Text("Eliminar suscripción") },
-                    text = { Text("¿Estás seguro de que quieres eliminar esta suscripción?") },
-                    confirmButton = {
-                        Button(onClick = {
-                            viewModel.eliminarSuscripcion(selectedSubscriptionForDeletion!!.id)
-                            showDeleteDialog = false
-                        }) {
-                            Text("Eliminar")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showDeleteDialog = false }) {
-                            Text("Cancelar")
-                        }
-                    }
-                )
-            }
         }
-    }
 
+    }
+}
+
+@Composable
+fun DrawerItem(label: String, onClick: () -> Unit) {
+    TextButton(onClick = onClick) {
+        Text(text = label)
+    }
 }

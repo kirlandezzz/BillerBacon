@@ -30,7 +30,7 @@ fun NavegacionHost() {
             PantallaInicio(navController)
         }
         composable(route = Navegacion.PantallaInformacion.ruta) {
-            PantallaInformacion()
+            PantallaInformacion(navController)
         }
     }
 }

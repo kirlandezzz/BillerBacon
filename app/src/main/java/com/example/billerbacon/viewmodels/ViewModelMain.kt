@@ -48,6 +48,7 @@ class ViewModelMain : ViewModel() {
 
 
     fun agregarSuscripcion(suscripcion: Suscripcion) {
+
         db.collection("suscripciones").add(suscripcion)
             .addOnSuccessListener { documentReference ->
                 Log.d("Firestore", "Documento agregado con ID: ${documentReference.id}")
@@ -67,6 +68,24 @@ class ViewModelMain : ViewModel() {
                 Log.w("Firestore", "Error al eliminar documento", e)
             }
     }
-
+    fun actualizarSuscripcion(suscripcionId: String, suscripcionActualizada: Suscripcion) {
+        viewModelScope.launch {
+            try {
+                // Asume que suscripcionId es el ID del documento en Firestore y suscripcionActualizada contiene los nuevos datos
+                db.collection("suscripciones").document(suscripcionId)
+                    .set(suscripcionActualizada)
+                    .addOnSuccessListener {
+                        Log.d("ViewModelMain", "Documento actualizado con éxito")
+                        // Opcional: Actualizar el flujo de suscripciones si es necesario
+                        cargarSuscripcionesDeUsuario(suscripcionActualizada.usuarioID)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("ViewModelMain", "Error al actualizar el documento", e)
+                    }
+            } catch (e: Exception) {
+                Log.e("ViewModelMain", "Error al actualizar suscripción", e)
+            }
+        }
+    }
 }
 
