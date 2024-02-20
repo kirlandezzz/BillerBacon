@@ -99,7 +99,7 @@ fun PantallaCreditos(navController: NavController) {
                     .background(Color(0xFFffe8c0))
                     .padding(paddingValues)
             ) {
-                Text(text = "Desarrolladores: Kirill Shepel y Erick Marcano Borges")
+                Text(text = "Desarrolladores:\n Kirill Shepel  \n Erick Marcano Borges.")
                 Text(text = "Última version estable: 20/02/2024")
             }
         }
