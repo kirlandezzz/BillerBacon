@@ -1,5 +1,6 @@
 package com.example.billerbacon.navegacion
 
+import PantallaCreditos
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -31,6 +32,9 @@ fun NavegacionHost() {
         }
         composable(route = Navegacion.PantallaInformacion.ruta) {
             PantallaInformacion(navController)
+        }
+        composable(route = Navegacion.PantallaCreditos.ruta) {
+            PantallaCreditos(navController)
         }
     }
 }

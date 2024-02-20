@@ -118,8 +118,7 @@ fun PantallaInformacion(navController: NavController) {
             }
 
         }
-    )
-    {
+    ) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -304,11 +303,7 @@ fun PantallaInformacion(navController: NavController) {
                                                     Timestamp(Date.from(fechaInicioParsed))
                                                 val timestampCaducidad =
                                                     Timestamp(Date.from(fechaCaducidadParsed))
-
-
                                                 val precioParsed = precioSuscripcion.toDouble()
-
-
                                                 val suscripcion = Suscripcion(
                                                     imagen = nombreSuscripcion,
                                                     nombre = nombreSuscripcion,
@@ -317,14 +312,10 @@ fun PantallaInformacion(navController: NavController) {
                                                     precio = precioParsed,
                                                     usuarioID = usuarioID!!
                                                 )
-
-
                                                 viewModel.actualizarSuscripcion(
                                                     suscripciones[index].id,
                                                     suscripcion
                                                 )
-
-
                                                 showDialog = false
                                             } catch (e: DateTimeParseException) {
 
@@ -347,8 +338,6 @@ fun PantallaInformacion(navController: NavController) {
                                     }
 
                                 },
-
-
                                 dismissButton = {
                                     TextButton(
                                         onClick = { showDialog = false },
@@ -364,7 +353,6 @@ fun PantallaInformacion(navController: NavController) {
                             )
                         }
                     }
-
                     Button(onClick = {
                         viewModel.eliminarSuscripcion(suscripciones[index].id)
                     }) {

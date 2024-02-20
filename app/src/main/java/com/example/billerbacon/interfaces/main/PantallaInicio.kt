@@ -50,7 +50,7 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun PantallaInicio(navController: NavController? = null) {
+fun PantallaInicio(navController: NavController) {
     val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var showDialog by remember { mutableStateOf(false) }
     val viewModel: ViewModelMain = viewModel()
@@ -90,14 +90,12 @@ fun PantallaInicio(navController: NavController? = null) {
                     scope.launch {
                         drawerState.close()
                     }
-
+                    navController?.navigate("PantallaCreditos")
                 })
             }
 
         }
-    )
-    {
-
+    ) {
         Scaffold(topBar = {
             TopAppBar(title = {
                 Box(
@@ -247,7 +245,6 @@ fun PantallaInicio(navController: NavController? = null) {
                             Button(
                                 onClick = {
                                     try {
-                                        // Convertir fechas de String a Timestamp
                                         val fechaInicioParsed =
                                             LocalDate.parse(fechaInicio, formatter)
                                                 .atStartOfDay(ZoneId.systemDefault()).toInstant()
@@ -258,12 +255,7 @@ fun PantallaInicio(navController: NavController? = null) {
                                             Timestamp(Date.from(fechaInicioParsed))
                                         val timestampCaducidad =
                                             Timestamp(Date.from(fechaCaducidadParsed))
-
-                                        // Conversión de precio de String a Double
                                         val precioParsed = precioSuscripcion.toDouble()
-
-
-                                        // Crear objeto Suscripcion con Timestamps
                                         val suscripcion = Suscripcion(
                                             imagen = nombreSuscripcion,
                                             nombre = nombreSuscripcion,
@@ -272,14 +264,9 @@ fun PantallaInicio(navController: NavController? = null) {
                                             precio = precioParsed,
                                             usuarioID = usuarioID!!
                                         )
-
-                                        // Llamar a ViewModel para agregar suscripción
                                         viewModel.agregarSuscripcion(suscripcion)
-
-                                        // Resetear diálogo
                                         showDialog = false
                                     } catch (e: DateTimeParseException) {
-                                        // Mostrar Toast con mensaje de error
                                         Toast.makeText(
                                             context,
                                             "Formato de fecha inválido. Usa el formato dd-MM-yyyy.",
@@ -299,8 +286,6 @@ fun PantallaInicio(navController: NavController? = null) {
                             }
 
                         },
-
-
                             dismissButton = {
                                 TextButton(
                                     onClick = { showDialog = false }, shape = RoundedCornerShape(50)
