@@ -2,6 +2,7 @@ package com.example.billerbacon.clases
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.billerbacon.R
 import com.google.firebase.Timestamp
 import java.time.LocalDate
 import java.time.ZoneId
@@ -14,7 +15,8 @@ class Suscripcion @RequiresApi(Build.VERSION_CODES.O) constructor(
     var fechaInicio: Timestamp,
     var fechaCaducidad: Timestamp,
     var precio: Double = 0.0,
-    val usuarioID: String = ""
+    val usuarioID: String = "",
+    val logoResId: Int = R.drawable.billerbacon
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
     constructor() : this("", "", "", Timestamp.now(), Timestamp.now(), 0.0)

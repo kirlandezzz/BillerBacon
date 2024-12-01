@@ -4,6 +4,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
@@ -64,6 +66,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import com.example.billerbacon.clases.Suscripcion
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
@@ -101,22 +104,18 @@ fun PantallaInformacion(navController: NavController) {
                     .fillMaxHeight()
                     .width(150.dp)
             ) {
-
                 DrawerItem(label = "Inicio", onClick = {
                     scope.launch {
                         drawerState.close()
                     }
                     navController.navigate("PantallaInicio")
-
                 })
                 DrawerItem(label = "Créditos", onClick = {
                     scope.launch {
                         drawerState.close()
                     }
-
                 })
             }
-
         }
     ) {
         Scaffold(
@@ -131,9 +130,7 @@ fun PantallaInformacion(navController: NavController) {
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = { scope.launch {
-                            drawerState.open()
-                        } }) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
                         }
                     },
@@ -143,13 +140,11 @@ fun PantallaInformacion(navController: NavController) {
                 )
             }
         ) { paddingValues ->
-
             HorizontalPager(
                 state = pagerState,
                 pageSize = PageSize.Fill,
-                modifier = Modifier.fillMaxWidth(),
-
-                ) { index ->
+                modifier = Modifier.fillMaxWidth()
+            ) { index ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -170,15 +165,42 @@ fun PantallaInformacion(navController: NavController) {
                                 .fillMaxHeight()
                         ) {
                             Row(
-                                horizontalArrangement = Arrangement.SpaceAround,
-                                modifier = Modifier.fillMaxWidth()
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
                             ) {
-                                Box() {
-                                    Text(text = suscripciones[index].nombre)
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = suscripciones[index].logoResId),
+                                        contentDescription = "${suscripciones[index].nombre} Logo",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                    )
+                                    Text(
+                                        text = suscripciones[index].nombre,
+                                        fontSize = 24.sp,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                    )
                                 }
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(text = "Precio Actual", fontSize = 20.sp)
-                                    Text(text = "${suscripciones[index].precio}", fontSize = 20.sp)
+                                Column(
+                                    horizontalAlignment = Alignment.End
+                                ) {
+                                    Text(
+                                        text = "Precio Actual",
+                                        fontSize = 16.sp,
+                                        color = Color.Gray
+                                    )
+                                    Text(
+                                        text = "${suscripciones[index].precio}€",
+                                        fontSize = 20.sp,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                        color = Color.Black
+                                    )
                                 }
                             }
                             Spacer(modifier = Modifier.height(50.dp))
@@ -229,7 +251,6 @@ fun PantallaInformacion(navController: NavController) {
                                         Spacer(modifier = Modifier.height(10.dp))
                                     }
                                 }
-
                             }
                         }
                     }
@@ -237,12 +258,8 @@ fun PantallaInformacion(navController: NavController) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
-
                     ) {
-                        Button(onClick = {
-
-                            showDialog = true
-                        }) {
+                        Button(onClick = { showDialog = true }) {
                             Text("Modificar")
                         }
                         if (showDialog) {
@@ -263,34 +280,29 @@ fun PantallaInformacion(navController: NavController) {
                                         OutlinedTextField(
                                             value = nombreSuscripcion,
                                             onValueChange = { nombreSuscripcion = it },
-                                            label = { Text("Nombre de la suscripción") },
-
-                                            )
+                                            label = { Text("Nombre de la suscripción") }
+                                        )
                                         OutlinedTextField(
                                             value = precioSuscripcion,
                                             onValueChange = { precioSuscripcion = it },
-                                            label = { Text("Precio") },
-
-                                            )
+                                            label = { Text("Precio") }
+                                        )
                                         OutlinedTextField(
                                             value = fechaInicio,
                                             onValueChange = { fechaInicio = it },
-                                            label = { Text("Fecha inicio") },
-
-                                            )
+                                            label = { Text("Fecha inicio") }
+                                        )
                                         OutlinedTextField(
                                             value = fechaCaducidad,
                                             onValueChange = { fechaCaducidad = it },
-                                            label = { Text("Fecha caducidad") },
-
-                                            )
+                                            label = { Text("Fecha caducidad") }
+                                        )
                                     }
                                 },
                                 confirmButton = {
                                     Button(
                                         onClick = {
                                             try {
-
                                                 val fechaInicioParsed =
                                                     LocalDate.parse(fechaInicio, formatter)
                                                         .atStartOfDay(ZoneId.systemDefault())
@@ -318,7 +330,6 @@ fun PantallaInformacion(navController: NavController) {
                                                 )
                                                 showDialog = false
                                             } catch (e: DateTimeParseException) {
-
                                                 Toast.makeText(
                                                     context,
                                                     "Formato de fecha inválido. Usa el formato dd-MM-yyyy.",
@@ -327,16 +338,15 @@ fun PantallaInformacion(navController: NavController) {
                                             } catch (e: NumberFormatException) {
                                                 Toast.makeText(
                                                     context,
-                                                    "El precio debe ser un numero usando decimal con punto",
+                                                    "El precio debe ser un número usando decimal con punto",
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                             }
-                                        }, shape = RoundedCornerShape(50)
-
+                                        },
+                                        shape = RoundedCornerShape(50)
                                     ) {
                                         Text("Modificar")
                                     }
-
                                 },
                                 dismissButton = {
                                     TextButton(
@@ -374,3 +384,4 @@ fun GenerarEstructuraFacturacion(texto1: String, texto2: String) {
         Text(text = texto2, fontSize = 20.sp)
     }
 }
+

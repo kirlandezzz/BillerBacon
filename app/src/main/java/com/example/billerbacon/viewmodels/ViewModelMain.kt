@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.billerbacon.R
 import com.example.billerbacon.clases.Suscripcion
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,16 +48,44 @@ class ViewModelMain : ViewModel() {
     }
 
 
-    fun agregarSuscripcion(suscripcion: Suscripcion) {
+    fun agregarSuscripcion(
+        nombre: String,
+        precio: Double,
+        fechaInicio: Timestamp,
+        fechaCaducidad: Timestamp,
+        usuarioID: String
+    ) {
+        val logoResId = obtenerLogoPorNombre(nombre)
+
+        val suscripcion = Suscripcion(
+            id = "",
+            imagen = nombre,
+            nombre = nombre,
+            fechaInicio = fechaInicio,
+            fechaCaducidad = fechaCaducidad,
+            precio = precio,
+            usuarioID = usuarioID,
+            logoResId = logoResId
+        )
 
         db.collection("suscripciones").add(suscripcion)
-            .addOnSuccessListener { documentReference ->
-                Log.d("Firestore", "Documento agregado con ID: ${documentReference.id}")
+            .addOnSuccessListener {
+                Log.d("Firestore", "Suscripción añadida con éxito")
             }
             .addOnFailureListener { e ->
-                Log.w("Firestore", "Error al agregar documento", e)
+                Log.e("Firestore", "Error al añadir la suscripción", e)
             }
     }
+
+    fun obtenerLogoPorNombre(nombre: String): Int {
+        return when (nombre.lowercase()) {
+            "netflix" -> R.drawable.netflix_new_icon
+            "spotify" -> R.drawable.spotify_logo
+            "amazon prime" -> R.drawable.amazon_prime_video
+            else -> R.drawable.billerbacon
+        }
+    }
+
 
     fun eliminarSuscripcion(idSuscripcion: String) {
         db.collection("suscripciones").document(idSuscripcion)
@@ -71,12 +100,10 @@ class ViewModelMain : ViewModel() {
     fun actualizarSuscripcion(suscripcionId: String, suscripcionActualizada: Suscripcion) {
         viewModelScope.launch {
             try {
-                // Asume que suscripcionId es el ID del documento en Firestore y suscripcionActualizada contiene los nuevos datos
                 db.collection("suscripciones").document(suscripcionId)
                     .set(suscripcionActualizada)
                     .addOnSuccessListener {
                         Log.d("ViewModelMain", "Documento actualizado con éxito")
-                        // Opcional: Actualizar el flujo de suscripciones si es necesario
                         cargarSuscripcionesDeUsuario(suscripcionActualizada.usuarioID)
                     }
                     .addOnFailureListener { e ->

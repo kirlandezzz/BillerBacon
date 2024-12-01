@@ -8,14 +8,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,17 +26,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.billerbacon.R
 import com.example.billerbacon.clases.Suscripcion
-import com.example.billerbacon.navegacion.Navegacion
 import com.example.billerbacon.viewmodels.ViewModelMain
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -57,9 +56,7 @@ fun PantallaInicio(navController: NavController) {
     val suscripciones by viewModel.suscripciones.collectAsState()
     val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
     val context = LocalContext.current
-    val fecha = LocalDate.parse("10-02-2024", formatter)
     val usuarioID = FirebaseAuth.getInstance().currentUser?.uid
-    var paddingNumeros: Dp
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedSubscriptionForDeletion by remember { mutableStateOf<Suscripcion?>(null) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -116,14 +113,39 @@ fun PantallaInicio(navController: NavController) {
                 containerColor = Color(0xFFffe8c0)
             )
             )
-        }, floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showDialog = true },
-                containerColor = MaterialTheme.colorScheme.secondary
+        },floatingActionButton = {
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
+                FloatingActionButton(
+                    onClick = {  },
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 50.dp, bottom = 16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Call,
+                        contentDescription = "Micrófono",
+                        tint = Color.White
+                    )
+                }
+
+                FloatingActionButton(
+                    onClick = { showDialog = true },
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 16.dp)
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add")
+                }
             }
-        }, floatingActionButtonPosition = FabPosition.End
+        },
+
+            floatingActionButtonPosition = FabPosition.End
         ) { paddingValues ->
             Column(
                 Modifier
@@ -135,68 +157,88 @@ fun PantallaInicio(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(paddingValues)
-
                 ) {
                     items(suscripciones) { item ->
-                        paddingNumeros = if (item.calcularFecha() > 9) 10.dp else 18.dp
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier
-                            .width(400.dp)
-                            .height(100.dp)
-                            .padding(10.dp)
-                            .clip(RoundedCornerShape(15.dp))
-                            .background(Color.White)
-                            .border(
-                                BorderStroke(6.dp, Color.LightGray),
-                                RoundedCornerShape(15.dp)
-                            )
-                            .combinedClickable(
-                                onClick = { navController?.navigate("PantallaInformacion") },
-                                onLongClick = {
-                                    selectedSubscriptionForDeletion = item
-                                    showDeleteDialog = true
-                                }
-                            )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .width(400.dp)
+                                .height(100.dp)
+                                .padding(10.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .background(Color.White)
+                                .border(
+                                    BorderStroke(6.dp, Color.LightGray),
+                                    RoundedCornerShape(15.dp)
+                                )
+                                .combinedClickable(
+                                    onClick = { navController?.navigate("PantallaInformacion") },
+                                    onLongClick = {
+                                        selectedSubscriptionForDeletion = item
+                                        showDeleteDialog = true
+                                    }
+                                )
                         ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceAround,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Box(Modifier.width(70.dp)) {
-                                    Text(text = item.imagen)
+
+                                Image(
+                                    painter = painterResource(id = item.logoResId),
+                                    contentDescription = "${item.nombre} Logo",
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .padding(start = 8.dp)
+                                )
+
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(horizontal = 8.dp)
+                                ) {
+                                    Text(
+                                        text = item.nombre,
+                                        fontSize = 18.sp,
+                                        color = Color.Black
+                                    )
+                                    Text(
+                                        text = String.format("%.2f €", item.precio),
+                                        fontSize = 16.sp,
+                                        color = Color.Black
+                                    )
                                 }
-                                Box(Modifier.width(50.dp)) {
-                                    Text(text = "${item.precio}€")
-                                }
+
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(15.dp))
+                                        .size(60.dp)
+                                        .clip(RoundedCornerShape(30.dp))
                                         .background(Color.LightGray)
-                                        .width(50.dp)
-                                        .wrapContentSize(Alignment.Center)
-                                        .height(50.dp),
+                                        .border(BorderStroke(2.dp, Color.White), RoundedCornerShape(30.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = "${item.calcularFecha()}    ",
-                                        modifier = Modifier
-                                            .wrapContentSize(Alignment.Center)
-                                            .fillMaxWidth()
-                                            .padding(start = paddingNumeros),
-                                        fontSize = 25.sp,
+                                        text = "${item.calcularFecha()}",
+                                        fontSize = 20.sp,
                                         color = Color.White,
                                         style = TextStyle(
                                             shadow = Shadow(
                                                 color = Color.Black,
                                                 blurRadius = 6f,
                                             )
-                                        )
+                                        ),
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }
                         }
                     }
                 }
+
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -210,91 +252,115 @@ fun PantallaInicio(navController: NavController) {
                         var fechaInicio by remember { mutableStateOf("") }
                         var fechaCaducidad by remember { mutableStateOf("") }
 
-                        AlertDialog(onDismissRequest = { showDialog = false }, title = {
-                            Text(
-                                text = "Nueva Suscripción",
-                            )
-                        }, text = {
-                            Column {
-                                OutlinedTextField(
-                                    value = nombreSuscripcion,
-                                    onValueChange = { nombreSuscripcion = it },
-                                    label = { Text("Nombre de la suscripción") },
-
-                                    )
-                                OutlinedTextField(
-                                    value = precioSuscripcion,
-                                    onValueChange = { precioSuscripcion = it },
-                                    label = { Text("Precio") },
-
-                                    )
-                                OutlinedTextField(
-                                    value = fechaInicio,
-                                    onValueChange = { fechaInicio = it },
-                                    label = { Text("Fecha inicio") },
-
-                                    )
-                                OutlinedTextField(
-                                    value = fechaCaducidad,
-                                    onValueChange = { fechaCaducidad = it },
-                                    label = { Text("Fecha caducidad") },
-
-                                    )
-                            }
-                        }, confirmButton = {
-                            Button(
-                                onClick = {
-                                    try {
-                                        val fechaInicioParsed =
-                                            LocalDate.parse(fechaInicio, formatter)
-                                                .atStartOfDay(ZoneId.systemDefault()).toInstant()
-                                        val fechaCaducidadParsed =
-                                            LocalDate.parse(fechaCaducidad, formatter)
-                                                .atStartOfDay(ZoneId.systemDefault()).toInstant()
-                                        val timestampInicio =
-                                            Timestamp(Date.from(fechaInicioParsed))
-                                        val timestampCaducidad =
-                                            Timestamp(Date.from(fechaCaducidadParsed))
-                                        val precioParsed = precioSuscripcion.toDouble()
-                                        val suscripcion = Suscripcion(
-                                            imagen = nombreSuscripcion,
-                                            nombre = nombreSuscripcion,
-                                            fechaInicio = timestampInicio,
-                                            fechaCaducidad = timestampCaducidad,
-                                            precio = precioParsed,
-                                            usuarioID = usuarioID!!
-                                        )
-                                        viewModel.agregarSuscripcion(suscripcion)
-                                        showDialog = false
-                                    } catch (e: DateTimeParseException) {
-                                        Toast.makeText(
-                                            context,
-                                            "Formato de fecha inválido. Usa el formato dd-MM-yyyy.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    } catch (e: NumberFormatException) {
-                                        Toast.makeText(
-                                            context,
-                                            "El precio debe ser un numero usando decimal con punto",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                }, shape = RoundedCornerShape(50)
-
-                            ) {
-                                Text("Subir")
-                            }
-
-                        },
-                            dismissButton = {
-                                TextButton(
-                                    onClick = { showDialog = false }, shape = RoundedCornerShape(50)
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false },
+                            title = {
+                                Text(
+                                    text = "Nueva Suscripción",
+                                    style = TextStyle(fontSize = 20.sp, color = Color.Black),
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                            },
+                            text = {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    horizontalAlignment = Alignment.Start
                                 ) {
-                                    Text(
-                                        "Cancelar", color = MaterialTheme.colorScheme.error
+                                    OutlinedTextField(
+                                        value = nombreSuscripcion,
+                                        onValueChange = { nombreSuscripcion = it },
+                                        label = { Text("Nombre de la suscripción") },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
                                     )
+
+                                    OutlinedTextField(
+                                        value = precioSuscripcion,
+                                        onValueChange = { precioSuscripcion = it },
+                                        label = { Text("Precio") },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        OutlinedTextField(
+                                            value = fechaInicio,
+                                            onValueChange = { fechaInicio = it },
+                                            label = { Text("Fecha inicio (dd-MM-yyyy)") },
+                                            singleLine = true,
+                                            modifier = Modifier.weight(1f).padding(end = 8.dp)
+                                        )
+
+                                        OutlinedTextField(
+                                            value = fechaCaducidad,
+                                            onValueChange = { fechaCaducidad = it },
+                                            label = { Text("Fecha caducidad (dd-MM-yyyy)") },
+                                            singleLine = true,
+                                            modifier = Modifier.weight(1f).padding(start = 8.dp)
+                                        )
+                                    }
                                 }
-                            }, containerColor = Color(0xFFffe8c0), shape = RoundedCornerShape(12.dp)
+                            },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        try {
+                                            val fechaInicioParsed =
+                                                LocalDate.parse(fechaInicio, formatter)
+                                                    .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                            val fechaCaducidadParsed =
+                                                LocalDate.parse(fechaCaducidad, formatter)
+                                                    .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                            val timestampInicio = Timestamp(Date.from(fechaInicioParsed))
+                                            val timestampCaducidad = Timestamp(Date.from(fechaCaducidadParsed))
+                                            val precioParsed = precioSuscripcion.toDouble()
+
+                                            viewModel.agregarSuscripcion(
+                                                nombre = nombreSuscripcion,
+                                                precio = precioParsed,
+                                                fechaInicio = timestampInicio,
+                                                fechaCaducidad = timestampCaducidad,
+                                                usuarioID = usuarioID!!
+                                            )
+                                            showDialog = false
+                                        } catch (e: DateTimeParseException) {
+                                            Toast.makeText(
+                                                context,
+                                                "Formato de fecha inválido. Usa el formato dd-MM-yyyy.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        } catch (e: NumberFormatException) {
+                                            Toast.makeText(
+                                                context,
+                                                "El precio debe ser un número usando decimal con punto.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(50),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Guardar", fontSize = 16.sp)
+                                }
+                            },
+                            dismissButton = {
+                                OutlinedButton(
+                                    onClick = { showDialog = false },
+                                    shape = RoundedCornerShape(50),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Cancelar", fontSize = 16.sp, color = MaterialTheme.colorScheme.error)
+                                }
+                            },
+                            containerColor = Color.White,
+                            shape = RoundedCornerShape(16.dp)
                         )
                     }
                 }
