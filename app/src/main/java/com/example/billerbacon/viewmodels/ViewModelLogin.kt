@@ -20,24 +20,22 @@ import com.google.firebase.ktx.Firebase
 
 import kotlinx.coroutines.launch
 
-//ViewModel para gestinar el inicio de sesión
 class ViewModelLogin : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
     private val _cargando = MutableLiveData(false)
     private val _mensajeError = MutableLiveData<String?>()
     val mensajeError: LiveData<String?> get() = _mensajeError
 
-    //Función necesaria para validar el usuario y la contraseña
     fun iniciarSesion(email: String, clave: String, home: () -> Unit) = viewModelScope.launch {
 
         try {
             auth.signInWithEmailAndPassword(email, clave).addOnCompleteListener { task ->
 
                 if (task.isSuccessful) {
-                    // Inicio de sesión exitoso
+
                     home()
                 } else {
-                    // Inicio de sesión fallido
+
                     _mensajeError.value = "Correo electrónico o clave incorrectos"
                 }
             }
@@ -56,7 +54,7 @@ class ViewModelLogin : ViewModel() {
         }
     }
 
-    //Función necesaria para crear usuario
+
     fun registrarUsuario(email: String, clave: String, home: () -> Unit) {
         if (_cargando.value == false) {
             _cargando.value == true

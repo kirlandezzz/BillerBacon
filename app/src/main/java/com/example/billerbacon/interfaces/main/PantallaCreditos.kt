@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -39,21 +41,20 @@ fun PantallaCreditos(navController: NavController) {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            Column(
-                modifier = Modifier
-                    .background(Color(0xFFffe8c0))
-                    .fillMaxHeight()
-                    .width(150.dp)
+            Column(modifier = Modifier
+                .background(Color(0xFFffe8c0))
+                .fillMaxHeight()
+                .width(150.dp)
             ) {
 
-                DrawerItem(label = "Inicio", onClick = {
+                com.example.billerbacon.interfaces.main.DrawerItem(label = "Inicio", onClick = {
                     scope.launch {
                         drawerState.close()
                     }
                     navController?.navigate("PantallaInicio")
 
                 })
-                DrawerItem(label = "Créditos", onClick = {
+                com.example.billerbacon.interfaces.main.DrawerItem(label = "Créditos", onClick = {
                     scope.launch {
                         drawerState.close()
                     }
@@ -63,27 +64,31 @@ fun PantallaCreditos(navController: NavController) {
 
         }
     ) {
-        Scaffold(topBar = {
-            TopAppBar(title = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Text(text = currentDate, color = Color.Black)
-                }
-            }, navigationIcon = {
-                IconButton(onClick = {
-                    scope.launch {
-                        drawerState.open()
-                    }
-                }) {
-                    Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
-                }
-            }, colors = TopAppBarDefaults.smallTopAppBarColors(
-                containerColor = Color(0xFFffe8c0)
-            )
-            )
-        }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            Text(text = currentDate, color = Color.Black)
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                drawerState.open()
+                            }
+                        }) {
+                            Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
+                        }
+                    },
+                    colors = TopAppBarDefaults.smallTopAppBarColors(
+                        containerColor = Color(0xFFffe8c0)
+                    )
+                )
+            }
         ) { paddingValues ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -94,11 +99,13 @@ fun PantallaCreditos(navController: NavController) {
                     .padding(paddingValues)
             ) {
                 Text(text = "Desarrollador:\n Kirill Shepel")
-                Text(text = "Última version estable: 01/12/2024")
+                Text(text = "Última versión estable: 01/12/2024")
             }
         }
     }
 }
+
+
 
 @Composable
 fun DrawerItem(label: String, onClick: () -> Unit?) {

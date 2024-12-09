@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.billerbacon.clases.Suscripcion
@@ -70,10 +71,11 @@ fun PantallaInicio(navController: NavController) {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            Column(modifier = Modifier
-                .background(Color(0xFFffe8c0))
-                .fillMaxHeight()
-                .width(150.dp)
+            Column(
+                modifier = Modifier
+                    .background(Color(0xFFffe8c0))
+                    .fillMaxHeight()
+                    .width(150.dp)
             ) {
 
                 DrawerItem(label = "Inicio", onClick = {
@@ -113,12 +115,14 @@ fun PantallaInicio(navController: NavController) {
                 containerColor = Color(0xFFffe8c0)
             )
             )
-        },floatingActionButton = {
+        }, floatingActionButton = {
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(0f)
             ) {
                 FloatingActionButton(
-                    onClick = {  },
+                    onClick = { },
                     shape = RoundedCornerShape(16.dp),
                     containerColor = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
@@ -155,9 +159,11 @@ fun PantallaInicio(navController: NavController) {
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .padding(paddingValues)
-                ) {
+                        .zIndex(1f)
+                )
+                {
                     items(suscripciones) { item ->
                         Box(
                             contentAlignment = Alignment.Center,
@@ -217,7 +223,10 @@ fun PantallaInicio(navController: NavController) {
                                         .size(60.dp)
                                         .clip(RoundedCornerShape(30.dp))
                                         .background(Color.LightGray)
-                                        .border(BorderStroke(2.dp, Color.White), RoundedCornerShape(30.dp)),
+                                        .border(
+                                            BorderStroke(2.dp, Color.White),
+                                            RoundedCornerShape(30.dp)
+                                        ),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -295,7 +304,9 @@ fun PantallaInicio(navController: NavController) {
                                             onValueChange = { fechaInicio = it },
                                             label = { Text("Fecha inicio (dd-MM-yyyy)") },
                                             singleLine = true,
-                                            modifier = Modifier.weight(1f).padding(end = 8.dp)
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(end = 8.dp)
                                         )
 
                                         OutlinedTextField(
@@ -303,7 +314,9 @@ fun PantallaInicio(navController: NavController) {
                                             onValueChange = { fechaCaducidad = it },
                                             label = { Text("Fecha caducidad (dd-MM-yyyy)") },
                                             singleLine = true,
-                                            modifier = Modifier.weight(1f).padding(start = 8.dp)
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(start = 8.dp)
                                         )
                                     }
                                 }
@@ -314,12 +327,16 @@ fun PantallaInicio(navController: NavController) {
                                         try {
                                             val fechaInicioParsed =
                                                 LocalDate.parse(fechaInicio, formatter)
-                                                    .atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                                    .atStartOfDay(ZoneId.systemDefault())
+                                                    .toInstant()
                                             val fechaCaducidadParsed =
                                                 LocalDate.parse(fechaCaducidad, formatter)
-                                                    .atStartOfDay(ZoneId.systemDefault()).toInstant()
-                                            val timestampInicio = Timestamp(Date.from(fechaInicioParsed))
-                                            val timestampCaducidad = Timestamp(Date.from(fechaCaducidadParsed))
+                                                    .atStartOfDay(ZoneId.systemDefault())
+                                                    .toInstant()
+                                            val timestampInicio =
+                                                Timestamp(Date.from(fechaInicioParsed))
+                                            val timestampCaducidad =
+                                                Timestamp(Date.from(fechaCaducidadParsed))
                                             val precioParsed = precioSuscripcion.toDouble()
 
                                             viewModel.agregarSuscripcion(
@@ -356,7 +373,11 @@ fun PantallaInicio(navController: NavController) {
                                     shape = RoundedCornerShape(50),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Cancelar", fontSize = 16.sp, color = MaterialTheme.colorScheme.error)
+                                    Text(
+                                        "Cancelar",
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
                                 }
                             },
                             containerColor = Color.White,

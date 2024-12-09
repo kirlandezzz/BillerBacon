@@ -51,6 +51,8 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.material:material:1.5.1")
+    implementation ("androidx.compose.ui:ui:1.5.1")
     implementation("androidx.compose.material3:material3:1.2.0")
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.0")
     implementation("androidx.core:core-ktx:1.12.0")
