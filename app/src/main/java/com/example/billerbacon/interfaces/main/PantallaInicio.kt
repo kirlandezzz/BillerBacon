@@ -1,7 +1,12 @@
 package com.example.billerbacon.interfaces.main
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Build
+import android.speech.RecognizerIntent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -9,6 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -68,6 +75,46 @@ fun PantallaInicio(navController: NavController) {
             viewModel.cargarSuscripcionesDeUsuario(id)
         }
     }
+
+    fun performVoiceAction(command: String) {
+        when {
+            command.contains("nueva suscripción", true) -> showDialog = true
+            command.contains("ver suscripciones", true) -> navController.navigate("PantallaInformacion")
+            command.contains("eliminar suscripción", true) -> {
+                if (suscripciones.isNotEmpty()) {
+                    selectedSubscriptionForDeletion = suscripciones.first()
+                    showDeleteDialog = true
+                } else {
+                    Toast.makeText(context, "No hay suscripciones para eliminar", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    val speechRecognizerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val command = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
+            command?.let {
+                performVoiceAction(it)
+            }
+        }
+    }
+
+    fun startSpeechToText() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale("es", "ES"))
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Diga \"nueva suscripción\",\"ver suscripciones\" o \"eliminar suscripción\" ")
+        }
+        try {
+            speechRecognizerLauncher.launch(intent)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Reconocimiento de voz no disponible", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -77,65 +124,41 @@ fun PantallaInicio(navController: NavController) {
                     .fillMaxHeight()
                     .width(150.dp)
             ) {
-
                 DrawerItem(label = "Inicio", onClick = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                    navController?.navigate("PantallaInicio")
-
+                    scope.launch { drawerState.close() }
+                    navController.navigate("PantallaInicio")
                 })
                 DrawerItem(label = "Créditos", onClick = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                    navController?.navigate("PantallaCreditos")
+                    scope.launch { drawerState.close() }
+                    navController.navigate("PantallaCreditos")
                 })
             }
-
         }
     ) {
         Scaffold(topBar = {
             TopAppBar(title = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
                     Text(text = currentDate, color = Color.Black)
                 }
             }, navigationIcon = {
-                IconButton(onClick = {
-                    scope.launch {
-                        drawerState.open()
-                    }
-                }) {
+                IconButton(onClick = { scope.launch { drawerState.open() } }) {
                     Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
                 }
-            }, colors = TopAppBarDefaults.smallTopAppBarColors(
-                containerColor = Color(0xFFffe8c0)
-            )
-            )
+            }, colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFFffe8c0)))
         }, floatingActionButton = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(0f)
-            ) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .zIndex(0f)) {
                 FloatingActionButton(
-                    onClick = { },
+                    onClick = { startSpeechToText() },
                     shape = RoundedCornerShape(16.dp),
                     containerColor = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 50.dp, bottom = 16.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Call,
-                        contentDescription = "Micrófono",
-                        tint = Color.White
-                    )
+                    Icon(imageVector = Icons.Filled.Call, contentDescription = "Micrófono", tint = Color.White)
                 }
-
                 FloatingActionButton(
                     onClick = { showDialog = true },
                     containerColor = MaterialTheme.colorScheme.secondary,
@@ -147,14 +170,18 @@ fun PantallaInicio(navController: NavController) {
                     Icon(Icons.Filled.Add, contentDescription = "Add")
                 }
             }
-        },
-
-            floatingActionButtonPosition = FabPosition.End
-        ) { paddingValues ->
+        }, floatingActionButtonPosition = FabPosition.End) { paddingValues ->
             Column(
                 Modifier
                     .fillMaxSize()
                     .background(Color(0xFFffe8c0))
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = {
+                                navController.navigate("PantallaCreditos")
+                            }
+                        )
+                    }
             ) {
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
