@@ -1,1 +1,3 @@
 /build
+# Configuración de Firebase: se descarga de la consola de Firebase, no se sube
+google-services.json
